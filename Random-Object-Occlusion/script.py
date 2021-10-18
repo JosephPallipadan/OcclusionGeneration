@@ -3,6 +3,12 @@ import random
 import numpy as np
 from matplotlib import pyplot as plt
 import cv2
+import os
+import pdb
+
+
+directory = "images"
+results = "results"
 
 def get_segmentation_mask(object_png : Image.Image, image_to_occlude: Image.Image, placed_position: tuple[int, int]):
     """[summary]
@@ -34,6 +40,8 @@ def detect_face_location(image_path: str):
     # save face detection algorithm's name as haarcascade
     haarcascade = "haarcascade_frontalface_alt2.xml"
 
+    # pdb.set_trace()
+
     # create an instance of the Face Detection Cascade Classifier
     detector = cv2.CascadeClassifier(haarcascade)
 
@@ -41,30 +49,36 @@ def detect_face_location(image_path: str):
     # Detect faces using the haarcascade classifier on the "grayscale image"
     faces = detector.detectMultiScale(cv2.cvtColor(image_rgb, cv2.COLOR_BGR2GRAY))
 
-    return faces[0]
+    return faces[0] if len(faces) > 0 else (0, 0, image_rgb.shape[1], image_rgb.shape[0])
 
-background = Image.open("img.jpg")
-bg_width, bg_height = background.size
+for file in os.listdir(directory):
+    background = Image.open(f"{directory}/{file}")
+    bg_width, bg_height = background.size
 
-scale_range_min, scale_range_max = 0.25, 2
-scale = random.random() * (scale_range_max - scale_range_min) + scale_range_min
+    scale_range_min, scale_range_max = 0.25, 2
+    scale = random.random() * (scale_range_max - scale_range_min) + scale_range_min
 
-rotation = random.randint(0, 360)
+    rotation = random.randint(0, 360)
 
-img = Image.open("Object Images/dove.png").resize((bg_width // 5, bg_height * (bg_width // 5) // bg_width))
+    img = Image.open("Object Images/dove.png").resize((bg_width // 5, bg_height * (bg_width // 5) // bg_width))
 
-img_width, img_height = img.size
-img = img.resize((int(img_width * scale), int(img_height * scale)))
+    img_width, img_height = img.size
+    img = img.resize((int(img_width * scale), int(img_height * scale)))
 
-img = img.rotate(rotation)
+    img = img.rotate(rotation)
 
-face_x, face_y, face_width, face_height = detect_face_location("img.jpg")
-location = (random.randint(face_x, face_x + face_width // 2), random.randint(face_y, face_y + face_height // 2))
+    face_x, face_y, face_width, face_height = detect_face_location(f"{directory}/{file}")
+    location = (random.randint(face_x, face_x + face_width // 2), random.randint(face_y, face_y + face_height // 2))
 
-background.paste(img, location, img)
-background.show()
+    background.paste(img, location, img)
+    # background.show()
 
-seg_mask = get_segmentation_mask(img, background, location)
-overlap_img = Image.fromarray((0.5*np.array(background)*(1-seg_mask[:,:,None]) + 128*seg_mask[:,:,None].repeat(3, axis=2)).astype(np.uint8))
-plt.imshow(seg_mask, interpolation='nearest')
-plt.show()
+    seg_mask = get_segmentation_mask(img, background, location)
+    # overlap_img = Image.fromarray((0.5*np.array(background)*(1-seg_mask[:,:,None]) + 128*seg_mask[:,:,None].repeat(3, axis=2)).astype(np.uint8))
+    # plt.imshow(seg_mask)
+    # plt.show()
+
+    background.save(f"{results}/{file[:-4]}-occluded.png")
+    cv2.imwrite(f"{results}/{file[:-4]}-occluded-segmask.png", seg_mask * 255)
+    print(f"Occluded {file}")
+    # break
