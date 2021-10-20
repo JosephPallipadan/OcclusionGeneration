@@ -6,9 +6,10 @@ import cv2
 import os
 import pdb
 
-
 directory = "images"
 results = "results"
+scale_range_min, scale_range_max = 0.25, 2
+rotation_min, rotation_max = 0, 360
 
 def get_segmentation_mask(object_png : Image.Image, image_to_occlude: Image.Image, placed_position: tuple[int, int]):
     """[summary]
@@ -55,12 +56,10 @@ for file in os.listdir(directory):
     background = Image.open(f"{directory}/{file}")
     bg_width, bg_height = background.size
 
-    scale_range_min, scale_range_max = 0.25, 2
     scale = random.random() * (scale_range_max - scale_range_min) + scale_range_min
+    rotation = random.randint(rotation_min, rotation_max)
 
-    rotation = random.randint(0, 360)
-
-    img = Image.open("Object Images/dove.png").resize((bg_width // 5, bg_height * (bg_width // 5) // bg_width))
+    img = Image.open(f"Object Images/{random.choice(os.listdir('Object Images'))}").resize((bg_width // 5, bg_height * (bg_width // 5) // bg_width))
 
     img_width, img_height = img.size
     img = img.resize((int(img_width * scale), int(img_height * scale)))
