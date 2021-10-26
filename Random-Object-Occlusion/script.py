@@ -5,9 +5,11 @@ from matplotlib import pyplot as plt
 import cv2
 import os
 import pdb
+import sys
 
 directory = "images"
 results = "results"
+results_seg = "results"
 scale_range_min, scale_range_max = 0.25, 2
 rotation_min, rotation_max = 0, 360
 
@@ -52,6 +54,12 @@ def detect_face_location(image_path: str):
 
     return faces[0] if len(faces) > 0 else (0, 0, image_rgb.shape[1], image_rgb.shape[0])
 
+if __name__ == "__main__":
+    if len(sys.argv) > 1:
+        directory = sys.argv[1]
+        results = sys.argv[2]
+        results_seg = sys.argv[3]
+
 for file in os.listdir(directory):
     background = Image.open(f"{directory}/{file}")
     bg_width, bg_height = background.size
@@ -78,6 +86,6 @@ for file in os.listdir(directory):
     # plt.show()
 
     background.save(f"{results}/{file[:-4]}-occluded.png")
-    cv2.imwrite(f"{results}/{file[:-4]}-occluded-segmask.png", seg_mask * 255)
+    cv2.imwrite(f"{results_seg}/{file[:-4]}-occluded-segmask.png", seg_mask * 255)
     print(f"Occluded {file}")
     # break
