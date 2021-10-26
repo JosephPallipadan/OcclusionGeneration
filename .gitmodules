@@ -1,0 +1,3 @@
+[submodule "Face-Mask-Occlusion/MaskTheFace"]
+	path = Face-Mask-Occlusion/MaskTheFace
+	url = https://github.com/aqeelanwar/MaskTheFace.git
