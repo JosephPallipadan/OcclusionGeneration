@@ -127,3 +127,5 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
+
+Face-Mask-Occlusion\MaskTheFace\dlib_models\shape_predictor_68_face_landmarks.dat
