@@ -1,3 +1,6 @@
 [submodule "Face-Mask-Occlusion/MaskTheFace"]
 	path = Face-Mask-Occlusion/MaskTheFace
 	url = https://github.com/aqeelanwar/MaskTheFace.git
+[submodule "Sunglasses-Occlusion-Generation/jeelizGlassesVTOWidget"]
+	path = Sunglasses-Occlusion-Generation/jeelizGlassesVTOWidget
+	url = https://github.com/jeeliz/jeelizGlassesVTOWidget.git
