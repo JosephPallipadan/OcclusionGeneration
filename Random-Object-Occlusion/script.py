@@ -6,11 +6,17 @@ import cv2
 import os
 import pdb
 import sys
+import math
 
 directory = "/research/hal-datastage/datasets/processed/CelebA/celebahq_crop/all_images/imgs"
 results = "/research/hal-datastage/datasets/processed/CelebA/celebahq_crop/all_images/random_occ"
 results_seg = "/research/hal-datastage/datasets/processed/CelebA/celebahq_crop/all_images/random_occ_seg"
-scale_range_min, scale_range_max = 0.25, 2
+
+directory = "imgs"
+results = "results"
+results_seg = "results"
+
+percent_of_area_of_face_covered_min, percent_of_area_of_face_covered_max = 15, 40
 rotation_min, rotation_max = 0, 360
 
 def get_segmentation_mask(object_png : Image.Image, image_to_occlude: Image.Image, placed_position):
@@ -64,18 +70,17 @@ for file in os.listdir(directory):
     background = Image.open(f"{directory}/{file}")
     bg_width, bg_height = background.size
 
-    scale = random.random() * (scale_range_max - scale_range_min) + scale_range_min
+    scale = math.sqrt(random.randint(percent_of_area_of_face_covered_min, percent_of_area_of_face_covered_max) / 100)
     rotation = random.randint(rotation_min, rotation_max)
-
-    img = Image.open(f"Object Images/{random.choice(os.listdir('Object Images'))}").resize((bg_width // 5, bg_height * (bg_width // 5) // bg_width))
-
-    img_width, img_height = img.size
-    img = img.resize((int(img_width * scale), int(img_height * scale)))
-
-    img = img.rotate(rotation)
 
     face_x, face_y, face_width, face_height = detect_face_location(f"{directory}/{file}")
     location = (random.randint(face_x, face_x + face_width // 2), random.randint(face_y, face_y + face_height // 2))
+
+    new_width = int(face_width * scale)
+    new_height = int(face_height * (face_width * scale) // face_width)
+    img = Image.open(f"Object Images/{random.choice(os.listdir('Object Images'))}").resize((new_width, new_height))
+
+    img = img.rotate(rotation)
 
     background.paste(img, location, img)
     # background.show()
